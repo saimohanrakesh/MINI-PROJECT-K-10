@@ -1,0 +1,32 @@
+class ResponseChatBox{
+  int flag =0;
+  int check = 0;
+  String Responses(String _query){
+    if(_query != '1' || _query != '2'){
+    _query = _query.toLowerCase();
+    }
+    if(_query == 'hi' || _query == 'hello'|| _query == 'hey'){
+      flag =0;
+      return "Hello";
+    }
+    else if(_query == 'i am not feeling well' || _query == 'i am sick'){
+      String a = "Sorry! to hear that, please select an option \n 1. want me to predict your problem \n 2.Need Some advice ";
+      flag = 1;
+      return a;
+    }
+    else if ((_query == '1') && (flag==1)){
+      flag = 0;
+      return "go to popup";
+    }
+    else if ((_query == '2') && (flag==1)){
+      flag = 0 ;
+      return "go to disease";
+    }
+    else if((_query == "thank you")){
+      return "Anytime! always at your service";
+    }
+    else{
+      return "sorry I am not updated to that knowledge, lets hope for best in future :p";
+    }
+  }
+}
