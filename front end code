@@ -1,0 +1,568 @@
+import 'package:flutter/material.dart';
+import 'package:searchable_dropdown/searchable_dropdown.dart';
+import './responses/responses.dart';
+import 'package:intl/intl.dart';
+
+void main() {
+  runApp(MyApp());
+}
+//=====================================================================================
+class ChatMessage extends StatelessWidget {
+  final String text;
+  final String name;
+  final bool type;
+  ChatMessage({this.text, this.name ,this.type});
+
+  List<Widget> otherMessage(context) {
+    return <Widget>[
+      new Container(
+        margin: const EdgeInsets.only(right: 16.0),
+        child: new CircleAvatar(child: new Text('B')),
+      ),
+      new Expanded(
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            new Text(this.name,
+                style: new TextStyle(fontWeight: FontWeight.bold)),
+            new Container(
+              margin: const EdgeInsets.only(top: 5.0),
+              child: new Text(text),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+//=======================================================================================
+
+// ======================================messages========================================
+  List<Widget> myMessage(context) {
+    return <Widget>[
+      new Expanded(
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            new Text(this.name, style: Theme.of(context).textTheme.subtitle1),
+            new Container(
+              margin: const EdgeInsets.only(top: 5.0),
+              child: new Text(text),
+            ),
+          ],
+        ),
+      ),
+      new Container(
+        margin: const EdgeInsets.only(left: 16.0),
+        child: new CircleAvatar(
+            child: new Text(
+              this.name[0],
+              style: new TextStyle(fontWeight: FontWeight.bold
+              ),
+            )
+        ),
+      ),
+    ];
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10.0),
+      child: new Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: this.type ? myMessage(context) : otherMessage(context),
+      ),
+    );
+  }
+}
+//======================================================================================
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Health Care Assistant',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.deepPurple,
+        accentColor: Colors.deepOrange,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(title: 'Health Assistant'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+List<int> selectedItems;
+List<int> selectedPrognosis;
+var answers = new ResponseChatBox();
+final TextEditingController messageInsert = new TextEditingController();
+final List<ChatMessage> _messages = <ChatMessage>[];
+var Data;
+
+class _MyHomePageState extends State<MyHomePage> {
+  List<String> symptoms = [
+    'itching',
+    'skin_rash',
+    'nodal_skin_eruptions',
+    'continuous_sneezing',
+    'shivering',
+    'chills',
+    'joint_pain',
+    'stomach_pain',
+    'acidity',
+    'ulcers_on_tongue',
+    'muscle_wasting',
+    'vomiting',
+    'burning_micturition',
+    'spotting_urination',
+    'fatigue',
+    'weight_gain',
+    'anxiety',
+    'cold_hands_and_feets',
+    'mood_swings',
+    'weight_loss',
+    'restlessness',
+    'lethargy',
+    'patches_in_throat',
+    'irregular_sugar_level',
+    'cough',
+    'high_fever',
+    'sunken_eyes',
+    'breathlessness',
+    'sweating',
+    'dehydration',
+    'indigestion',
+    'headache',
+    'yellowish_skin',
+    'dark_urine',
+    'nausea',
+    'loss_of_appetite',
+    'pain_behind_the_eyes',
+    'back_pain',
+    'constipation',
+    'abdominal_pain',
+    'diarrhoea',
+    'mild_fever',
+    'yellow_urine',
+    'yellowing_of_eyes',
+    'acute_liver_failure',
+    'fluid_overload',
+    'swelling_of_stomach',
+    'swelled_lymph_nodes',
+    'malaise',
+    'blurred_and_distorted_vision',
+    'phlegm',
+    'throat_irritation',
+    'redness_of_eyes',
+    'sinus_pressure',
+    'runny_nose',
+    'congestion',
+    'chest_pain',
+    'weakness_in_limbs',
+    'fast_heart_rate',
+    'pain_during_bowel_movements',
+    'pain_in_anal_region',
+    'bloody_stool',
+    'irritation_in_anus',
+    'neck_pain',
+    'dizziness',
+    'cramps',
+    'bruising',
+    'obesity',
+    'swollen_legs',
+    'swollen_blood_vessels',
+    'puffy_face_and_eyes',
+    'enlarged_thyroid',
+    'brittle_nails',
+    'swollen_extremeties',
+    'excessive_hunger',
+    'extra_marital_contacts',
+    'drying_and_tingling_lips',
+    'slurred_speech',
+    'knee_pain',
+    'hip_joint_pain',
+    'muscle_weakness',
+    'stiff_neck',
+    'swelling_joints',
+    'movement_stiffness',
+    'spinning_movements',
+    'loss_of_balance',
+    'unsteadiness',
+    'weakness_of_one_body_side',
+    'loss_of_smell',
+    'bladder_discomfort',
+    'foul_smell_of_urine',
+    'continuous_feel_of_urine',
+    'passage_of_gases',
+    'internal_itching',
+    'toxic_look_(typhos)',
+    'depression',
+    'irritability',
+    'muscle_pain',
+    'altered_sensorium',
+    'red_spots_over_body',
+    'belly_pain',
+    'abnormal_menstruation',
+    'dischromic_patches',
+    'watering_from_eyes',
+    'increased_appetite',
+    'polyuria',
+    'family_history',
+    'mucoid_sputum',
+    'rusty_sputum',
+    'lack_of_concentration',
+    'visual_disturbances',
+    'receiving_blood_transfusion',
+    'receiving_unsterile_injections',
+    'coma',
+    'stomach_bleeding',
+    'distention_of_abdomen',
+    'history_of_alcohol_consumption',
+    'fluid_overload',
+    'blood_in_sputum',
+    'prominent_veins_on_calf',
+    'palpitations',
+    'painful_walking',
+    'pus_filled_pimples',
+    'blackheads',
+    'scurring',
+    'skin_peeling',
+    'silver_like_dusting',
+    'small_dents_in_nails',
+    'inflammatory_nails',
+    'blister',
+    'red_sore_around_nose',
+    'yellow_crust_ooze'
+  ];
+  List<String> prognosis = ['Fungal infection','Allergy','GERD','Chronic cholestasis','Drug Reaction',
+    'Peptic ulcer diseae','AIDS','Diabetes','Gastroenteritis','Bronchial Asthma','Hypertension',
+    ' Migraine','Cervical spondylosis',
+    'Paralysis (brain hemorrhage)','Jaundice','Malaria','Chicken pox','Dengue','Typhoid','hepatitis A',
+    'Hepatitis B','Hepatitis C','Hepatitis D','Hepatitis E','Alcoholic hepatitis','Tuberculosis',
+    'Common Cold','Pneumonia','Dimorphic hemmorhoids(piles)',
+    'Heartattack','Varicoseveins','Hypothyroidism','Hyperthyroidism','Hypoglycemia','Osteoarthristis',
+    'Arthritis','(vertigo) Paroymsal  Positional Vertigo','Acne','Urinary tract infection','Psoriasis',
+    'Impetigo'];
+  String ans="";
+
+  @override
+  void intState(){
+      selectedItems.clear();
+      selectedPrognosis.clear();
+    }
+
+  void submitData() {
+    print(selectedItems);
+    Navigator.of(context).pop();
+  }
+
+  void submit2Data() async {
+    print(selectedPrognosis);
+    Navigator.of(context).pop();
+  }
+  void response(query) async{
+    messageInsert.clear();
+    var a = answers.Responses(query);
+    if (a == "go to popup") {
+      showModalBottomSheet(context: context, builder: (_) {
+        return Container(
+          padding: EdgeInsets.all(20.0),
+          child: GestureDetector(
+            onTap: () {},
+            child: Column(
+              children: [
+                Text("Select Symptoms",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.deepOrangeAccent,
+                  ),
+                ),
+                getSearchableDropdown(symptoms),
+                FlatButton(child: Text('PREDICT',
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),),
+                  textColor: Colors.cyan,
+                  onPressed: submitData,
+                  color: Colors.amberAccent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                      side: BorderSide(color: Colors.red)
+                  ),)
+              ],
+            ),
+            behavior: HitTestBehavior.opaque,
+          ),
+        );
+      },);
+    }
+
+
+    else if(a=="go to disease"){
+      print("at else if");
+      showModalBottomSheet(context: context, builder: (_) {
+        return Container(
+          padding: EdgeInsets.all(20.0),
+          child: GestureDetector(
+            onTap: () {},
+            child: Column(
+              children: [
+                Text("Select Disease",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.deepOrangeAccent,
+                  ),
+                ),
+                getSearchableDropdownDisease(prognosis),
+                FlatButton(child: Text('HELP ME',
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),),
+                  textColor: Colors.cyan,
+                  onPressed: submit2Data,
+                  color: Colors.amberAccent,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                      side: BorderSide(color: Colors.red)
+                  ),)
+              ],
+            ),
+            behavior: HitTestBehavior.opaque,
+          ),
+        );
+      },);
+    }
+
+
+    ChatMessage message = new ChatMessage(
+      text: a,
+      name: "bot",
+      type: false,
+    );
+    setState(() {
+      _messages.insert(0, message);
+    });
+  }
+
+  void _handleSubmitted(String text) {
+    messageInsert.clear();
+    ChatMessage message = new ChatMessage(
+      text: text,
+      name: "user",
+      type: true,
+    );
+    setState(() {
+      _messages.insert(0, message);
+    });
+    response(text);
+  }
+
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Center(
+            child: Text(
+              "Alpha",
+              style: TextStyle(fontSize: 50, fontFamily: "Tourner"),
+            ),
+          ),
+        ),
+        body: Container(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(top: 15, bottom: 10),
+                child: Text(
+                  "Today, ${DateFormat("Hm").format(DateTime.now())}",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  reverse: true,
+                  itemCount: _messages.length,
+                  itemBuilder: (context, index) => _messages[index],
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Divider(
+                height: 5.0,
+                color: Colors.lightBlueAccent,
+              ),
+              Container(
+                child: ListTile(
+                  title: Container(
+                    height: 35,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                      color: Color.fromRGBO(220, 220, 220, 1),
+                    ),
+                    padding: EdgeInsets.only(left: 15),
+                    child: TextFormField(
+                      controller: messageInsert,
+                      decoration: InputDecoration(
+                        hintText: "Enter a Message...",
+                        hintStyle: TextStyle(color: Colors.black26),
+                        border: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      onChanged: (value) {},
+                    ),
+                  ),
+                  trailing: IconButton(
+                      icon: Icon(
+                        Icons.send,
+                        size: 30.0,
+                        color: Colors.indigoAccent,
+                      ),
+                      onPressed: () => _handleSubmitted(messageInsert.text)),
+                ),
+              ),
+              SizedBox(
+                height: 15.0,
+              )
+            ],
+          ),
+        ),
+      );
+    }
+
+    Widget getSearchableDropdown(List<String> listData) {
+      List<DropdownMenuItem> items = [];
+      for (int i = 0; i < listData.length; i++) {
+        items.add(new DropdownMenuItem(
+          child: Text(
+            listData[i],
+            style: TextStyle(
+                fontSize: 18,
+                color: Colors.white
+            ),
+          ),
+          value: listData[i],
+        )
+        );
+      }
+      return Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: new SearchableDropdown.multiple(
+          items: items,
+          selectedItems: selectedItems,
+          isCaseSensitiveSearch: false,
+          hint: new Text(
+              'Select from list'
+          ),
+          searchHint: new Text(
+            "Symptoms List",
+          ),
+          validator: (selectedItemsForValidator) {
+            if (selectedItemsForValidator.length < 2) {
+              return ("must be atleast 2");
+            }
+            return (null);
+          },
+          onChanged: (value) {
+            // setState(() {
+            //   print(value);
+            //   selectedItems = value;
+            // });
+          },
+          doneButton: (selectedItemsDone, doneContext) {
+            selectedItems = selectedItemsDone;
+            return (RaisedButton(
+              onPressed: selectedItemsDone.length < 2
+                  ? null
+                  : () {
+                setState(() {});
+                Navigator.pop(doneContext);
+              },
+              child: Text("Save"),
+            ));
+          },
+          closeButton: (selectedItems) {
+            return (selectedItems.length >= 2 ? "Ok" : null);
+          },
+          isExpanded: true,
+        ),
+      );
+    }
+    //==========================================================================================
+  Widget getSearchableDropdownDisease(List<String> listData) {
+    List<DropdownMenuItem> items = [];
+    for (int i = 0; i < listData.length; i++) {
+      items.add(new DropdownMenuItem(
+        child: Text(
+          listData[i],
+          style: TextStyle(
+              fontSize: 18,
+              color: Colors.white
+          ),
+        ),
+        value: listData[i],
+      )
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: new SearchableDropdown.multiple(
+        items: items,
+        selectedItems: selectedPrognosis,
+        isCaseSensitiveSearch: false,
+        hint: new Text(
+            'Select from list'
+        ),
+        searchHint: new Text(
+          "Symptoms List",
+        ),
+        validator: (selectedItemsForValidator) {
+          if (selectedItemsForValidator.length > 1) {
+            return ("shouldn't be more than 1 ");
+          }
+          return (null);
+        },
+        onChanged: (value) {
+          // setState(() {
+          //   print(value);
+          //   selectedItems = value;
+          // });
+        },
+        doneButton: (selectedItemsDone, doneContext) {
+          selectedPrognosis = selectedItemsDone;
+          return (RaisedButton(
+            onPressed: selectedItemsDone.length != 1
+                ? null
+                : () {
+              setState(() {});
+              Navigator.pop(doneContext);
+            },
+            child: Text("Save"),
+          ));
+        },
+        closeButton: (selectedPrognosis) {
+          return (selectedPrognosis.length == 1 ? "Ok" : null);
+        },
+        isExpanded: true,
+      ),
+    );
+  }
+}
